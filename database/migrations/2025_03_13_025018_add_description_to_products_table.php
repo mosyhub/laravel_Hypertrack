@@ -8,14 +8,18 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->text('description')->nullable()->after('name'); // Adds 'description' column after 'name'
+            if (!Schema::hasColumn('products', 'description')) {
+                $table->text('description')->nullable()->after('name');
+            }
         });
     }
 
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('description');
+            if (Schema::hasColumn('products', 'description')) {
+                $table->dropColumn('description');
+            }
         });
     }
 };

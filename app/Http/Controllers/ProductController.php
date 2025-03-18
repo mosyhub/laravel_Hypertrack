@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductImage;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all(); // Fetch all products
-        return view('admin.products.index', compact('products')); // Ensure it points to the correct view
+        $products = Product::with('images')->get(); // Load products with images
+        return view('admin.products.index', compact('products'));
     }
 
     public function create()
@@ -22,26 +24,22 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'description' => 'nullable|string', // Ensure description is included
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate image
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
         ]);
-
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads'), $imageName);
-        }
 
         // Create product
-        Product::create([
-            'name' => $request->name,
-            'description' => $request->description, // Save description
-            'price' => $request->price,
-            'stock' => $request->stock,
-            'image' => $imageName ?? null, // Save image filename
-        ]);
+        $product = Product::create($request->only('name', 'description', 'price', 'stock'));
+
+        // Handle multiple image uploads
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePath = $image->store('products', 'public');
+                $product->images()->create(['image_path' => $imagePath]); // Use Eloquent relationship
+            }
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Product added successfully!');
     }
@@ -55,34 +53,35 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'description' => 'nullable|string', // Ensure description validation
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Allow optional image update
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Allow optional image update
         ]);
 
-        $data = $request->only(['name', 'description', 'price', 'stock']);
+        $product->update($request->only(['name', 'description', 'price', 'stock']));
 
-        // Handle image update
-        if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads'), $imageName);
-            $data['image'] = $imageName; // Save new image
+        // Handle new images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePath = $image->store('products', 'public');
+                $product->images()->create(['image_path' => $imagePath]);
+            }
         }
-
-        $product->update($data);
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Product $product)
     {
-        // Delete the associated image file
-        if ($product->image && file_exists(public_path('uploads/' . $product->image))) {
-            unlink(public_path('uploads/' . $product->image));
+        // Delete associated images
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
+            $image->delete();
         }
 
         $product->delete();
+
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }

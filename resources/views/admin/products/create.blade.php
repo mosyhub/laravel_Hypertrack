@@ -28,8 +28,9 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Product Image:</label>
-                <input type="file" name="image" class="form-control" accept="image/*" required>
+                <label class="form-label">Product Images:</label>
+                <input type="file" name="images[]" class="form-control" accept="image/*" multiple>
+                <small class="text-muted">You can upload multiple images at once.</small>
             </div>
 
             <button type="submit" class="btn btn-primary">➕ Add Product</button>

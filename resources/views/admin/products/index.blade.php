@@ -16,7 +16,7 @@
                 <th>Description</th>
                 <th>Price</th>
                 <th>Stock</th>
-                <th>Image</th>
+                <th>Images</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -28,8 +28,17 @@
                 <td class="align-middle">${{ number_format($product->price, 2) }}</td>
                 <td class="align-middle">{{ $product->stock }}</td>
                 <td class="align-middle">
-                    <img src="{{ asset('uploads/' . $product->image) }}" alt="Product Image" 
-                         class="img-fluid rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                    @if ($product->images->isNotEmpty())
+                        <div class="d-flex">
+                            @foreach ($product->images as $image)
+                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product Image"
+                                     class="img-fluid rounded me-2" 
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                            @endforeach
+                        </div>
+                    @else
+                        <span class="text-muted">No Image</span>
+                    @endif
                 </td>
                 <td class="align-middle text-center">
                     <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-warning btn-sm">
