@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -22,7 +23,7 @@ class ProductController extends Controller
         return view('admin.products.create');
     }
 
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
         $request->validate([
             'name' => 'required',
@@ -54,7 +55,7 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
 {
     $request->validate([
         'name' => 'required',
