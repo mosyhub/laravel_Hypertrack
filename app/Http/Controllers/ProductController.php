@@ -9,12 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    // ✅ Index - shows the list of products
     public function index()
     {
-        $products = Product::with('images')->get(); // Load products with images
+        $products = Product::with('images')->get(); // eager-load images
         return view('admin.products.index', compact('products'));
     }
 
+    // ✅ Create - shows the form to add a product
     public function create()
     {
         return view('admin.products.create');
@@ -27,54 +29,63 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
+            'images' => 'required', // Ensure at least one image is uploaded
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        // Create product
         $product = Product::create($request->only('name', 'description', 'price', 'stock'));
 
-        // Handle multiple image uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('products', 'public');
-                $product->images()->create(['image_path' => $imagePath]); // Use Eloquent relationship
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('products', $imageName, 'public');
+                $product->images()->create([
+                    'image_path' => $imagePath
+                ]);
             }
         }
 
         return redirect()->route('admin.products.index')->with('success', 'Product added successfully!');
     }
 
+    // ✅ Edit - shows the form to edit a product
     public function edit(Product $product)
     {
         return view('admin.products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)
-    {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Allow optional image update
-        ]);
+{
+    $request->validate([
+        'name' => 'required',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric',
+        'stock' => 'required|integer',
+        'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+    ]);
 
-        $product->update($request->only(['name', 'description', 'price', 'stock']));
+    $product->update($request->only(['name', 'description', 'price', 'stock']));
 
-        // Handle new images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('products', 'public');
-                $product->images()->create(['image_path' => $imagePath]);
-            }
+    if ($request->hasFile('images')) {
+        // Optionally delete old images if replacing
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
+            $image->delete();
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+        foreach ($request->file('images') as $image) {
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $product->images()->create(['image_path' => $imagePath]);
+        }
     }
 
+    return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+}
+    // ✅ Destroy - delete product (and its images optionally)
     public function destroy(Product $product)
     {
-        // Delete associated images
+        // Optional: delete associated images
         foreach ($product->images as $image) {
             Storage::disk('public')->delete($image->image_path);
             $image->delete();

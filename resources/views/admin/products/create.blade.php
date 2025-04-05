@@ -50,10 +50,10 @@
                 
                 <div class="form-group">
                     <label for="image">Product Image</label>
-                    <input type="file" class="form-control-file @error('image') is-invalid @enderror" 
-                           id="image" name="image">
-                    @error('image')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <input type="file" class="form-control-file @error('images') is-invalid @enderror" 
+                    id="images" name="images[]" multiple>
+                    @error('images')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
                 

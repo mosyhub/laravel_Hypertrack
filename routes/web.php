@@ -58,17 +58,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         // ✅ Add this line for updating role
         Route::post('/{id}/update-role', [AdminController::class, 'updateUserRole'])->name('updateRole');
     });
-
-    // ✅ Product Management
+    
+    /// ✅ Product Management (fixed version)
     Route::resource('products', ProductController::class)->names([
-        'index' => 'products.index',
-        'create' => 'products.create',
-        'store' => 'products.store',
-        'show' => 'products.show',
-        'edit' => 'products.edit',
-        'update' => 'products.update',
-        'destroy' => 'products.destroy'
-    ]);
+    'index' => 'products.index',
+    'create' => 'products.create',
+    'store' => 'products.store',
+    'show' => 'products.show',
+    'edit' => 'products.edit',
+    'update' => 'products.update',
+    'destroy' => 'products.destroy'
+]);
 
     // Orders
     Route::prefix('orders')->name('orders.')->group(function () {

@@ -31,15 +31,14 @@
 
             <div class="mb-3">
                 <label class="form-label">Current Product Image:</label>
-                <div>
-                    <img src="{{ asset('uploads/' . $product->image) }}" alt="Product Image" class="img-fluid rounded mb-2" 
-                         style="width: 120px; height: 120px; object-fit: cover;">
-                </div>
+                    @foreach ($product->images as $img)
+                    <img src="{{ asset('storage/' . $img->image_path) }}" class="img-thumbnail mb-2" width="120">
+                    @endforeach
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Upload New Image (Optional):</label>
-                <input type="file" name="image" class="form-control" accept="image/*">
+                <input type="file" name="images[]" class="form-control" accept="image/*" multiple>
             </div>
 
             <button type="submit" class="btn btn-success">💾 Update Product</button>

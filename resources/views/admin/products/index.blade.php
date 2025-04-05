@@ -28,18 +28,25 @@
                 <td class="align-middle">${{ number_format($product->price, 2) }}</td>
                 <td class="align-middle">{{ $product->stock }}</td>
                 <td class="align-middle">
-                    @if ($product->images->isNotEmpty())
-                        <div class="d-flex">
-                            @foreach ($product->images as $image)
-                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product Image"
-                                     class="img-fluid rounded me-2" 
-                                     style="width: 80px; height: 80px; object-fit: cover;">
-                            @endforeach
-                        </div>
-                    @else
-                        <span class="text-muted">No Image</span>
-                    @endif
-                </td>
+                    <!-- IMAGE FOR PRODUCT LIST -->
+    @if ($product->images->isNotEmpty())
+        <div class="d-flex flex-wrap">
+            @foreach ($product->images as $image)
+                @if (Storage::disk('public')->exists($image->image_path))
+                    <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product Image"
+                         class="img-fluid rounded me-2 mb-2"
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                @else
+                    <img src="{{ asset('images/placeholder.png') }}" alt="No Image Found"
+                         class="img-fluid rounded me-2 mb-2"
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                @endif
+            @endforeach
+        </div>
+    @else
+        <span class="text-muted">No Image</span>
+    @endif
+</td>
                 <td class="align-middle text-center">
                     <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-warning btn-sm">
                         ✏️ Edit
