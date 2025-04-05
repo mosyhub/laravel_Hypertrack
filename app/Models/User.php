@@ -21,8 +21,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_picture', // Allow mass assignment for profile picture
         'role', // Allow mass assignment for role
     ];
+
+    public function getProfilePictureUrlAttribute()
+{
+    return $this->profile_picture ? asset('storage/'.$this->profile_picture) : null;
+}
 
     /**
      * The attributes that should be hidden for serialization.
