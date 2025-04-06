@@ -15,8 +15,9 @@
                 <th>Profile</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Status</th>
                 <th>Role</th>
-                <th>Update</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -29,17 +30,35 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                        <form action="{{ route('admin.users.updateRole', $user->id) }}" method="POST" class="form-inline d-flex">
+                        <form id="status-form-{{ $user->id }}" action="{{ route('admin.users.updateStatus', $user->id) }}" method="POST" class="form-inline">
                             @csrf
-                            <select name="role" class="form-control mr-2">
-                                <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
-                                <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                            <div class="d-flex align-items-center">
+                                <select name="status" class="form-control mr-2">
+                                    <option value="active" {{ $user->status == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ $user->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                </select>
+                                <button type="button" onclick="confirmStatusChange({{ $user->id }})" class="btn btn-sm btn-primary">
+                                    Save
+                                </button>
+                            </div>
                         </form>
                     </td>
                     <td>
-                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                        <form id="role-form-{{ $user->id }}" action="{{ route('admin.users.updateRole', $user->id) }}" method="POST" class="form-inline">
+                            @csrf
+                            <div class="d-flex align-items-center">
+                                <select name="role" class="form-control mr-2">
+                                    <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
+                                    <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                </select>
+                                <button type="button" onclick="confirmRoleChange({{ $user->id }})" class="btn btn-sm btn-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
@@ -50,4 +69,18 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    function confirmStatusChange(userId) {
+        if (confirm('Are you sure you want to change this user\'s status?')) {
+            document.getElementById('status-form-' + userId).submit();
+        }
+    }
+
+    function confirmRoleChange(userId) {
+        if (confirm('Are you sure you want to change this user\'s role?')) {
+            document.getElementById('role-form-' + userId).submit();
+        }
+    }
+</script>
 @endsection

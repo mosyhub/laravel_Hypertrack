@@ -86,4 +86,12 @@ class AdminController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User role updated successfully.');
     }
+    public function updateUserStatus(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+    $user->status = $request->status;
+    $user->save();
+    
+    return back()->with('success', 'User status updated successfully');
+}
 }

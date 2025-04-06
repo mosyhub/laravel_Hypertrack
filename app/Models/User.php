@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'profile_picture', // Allow mass assignment for profile picture
         'role', // Allow mass assignment for role
+        'status', // Allow mass assignment for status
     ];
 
     public function getProfilePictureUrlAttribute()
@@ -49,6 +50,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'role' => 'string', // Cast role to string
+        'status' => 'string', // Cast status to string
     ];
 
     /**

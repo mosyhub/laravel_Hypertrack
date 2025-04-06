@@ -14,6 +14,32 @@
                 <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
             </div>
 
+            <div class="form-group">
+                    <label for="brand_id">Brand</label>
+                    <select name="brand_id" id="brand_id" class="form-control">
+                         <option value="">Select Brand</option>
+                        @foreach($brands as $brand)
+                        <option value="{{ $brand->id }}" 
+                     {{ old('brand_id', $product->brand_id ?? '') == $brand->id ? 'selected' : '' }}>
+                    {{ $brand->brand }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="type_id">Type</label>
+                    <select name="type_id" id="type_id" class="form-control">
+                        <option value="">Select Type</option>
+                        @foreach($types as $type)
+                            <option value="{{ $type->id }}" 
+                                {{ old('type_id', $product->type_id ?? '') == $type->id ? 'selected' : '' }}>
+                                {{ $type->type }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
             <div class="mb-3">
                 <label class="form-label">Description:</label>
                 <textarea name="description" class="form-control" rows="4" required>{{ $product->description }}</textarea>

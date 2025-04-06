@@ -9,6 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\SearchController; // Added the SearchController import
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,9 @@ Auth::routes();
 // ✅ Normal user routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    // Search route - moved outside admin group since search should be available to all users
+    Route::get('/search', [SearchController::class, 'search'])->name('search');
 
     // Cart
     Route::prefix('cart')->group(function () {
@@ -55,20 +59,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/{user}', [AdminController::class, 'updateUser'])->name('update');
         Route::delete('/{user}', [AdminController::class, 'destroyUser'])->name('destroy');
 
-        // ✅ Add this line for updating role
+        // ✅ Role and Status updates
         Route::post('/{id}/update-role', [AdminController::class, 'updateUserRole'])->name('updateRole');
+        Route::post('/{id}/update-status', [AdminController::class, 'updateUserStatus'])->name('updateStatus');
     });
     
-    /// ✅ Product Management (fixed version)
+    // ✅ Product Management (fixed version)
     Route::resource('products', ProductController::class)->names([
-    'index' => 'products.index',
-    'create' => 'products.create',
-    'store' => 'products.store',
-    'show' => 'products.show',
-    'edit' => 'products.edit',
-    'update' => 'products.update',
-    'destroy' => 'products.destroy'
-]);
+        'index' => 'products.index',
+        'create' => 'products.create',
+        'store' => 'products.store',
+        'show' => 'products.show',
+        'edit' => 'products.edit',
+        'update' => 'products.update',
+        'destroy' => 'products.destroy'
+    ]);
 
     // Orders
     Route::prefix('orders')->name('orders.')->group(function () {
